@@ -79,7 +79,7 @@ public class AStar {
             // If this node is the end node
             if (current.equals(end)) {
                 // Run the reconstructPath function to reconstruct the path
-                return reconstructPath(current, grid);
+                return reconstructPath(current);
             }
             // Remove the current node from the openSet (It does not need to be tested again)
             openSet.remove(current);
@@ -127,10 +127,10 @@ public class AStar {
 
     /*
         Reconstruct the path from the current node (which would be the end node) back to the start node.
-        The arguments passed in are; a Node representing the current node, and a 2D Node array representing
-        the grid. The value returned is the completed path (A list of nodes).
+        The arguments passed in is a Node representing the current node.
+        The value returned is the completed path (A list of nodes).
      */
-    private static List<Node> reconstructPath(Node current, Node[][] grid) {
+    private static List<Node> reconstructPath(Node current) {
         // Create a local variable to hold the path, using an ArrayList
         List<Node> path = new ArrayList<>();
         // Add the current node to the path
