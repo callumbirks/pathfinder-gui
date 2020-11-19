@@ -1,0 +1,9 @@
+.hbox {
+    -fx-spacing:50px;
+    -fx-alignment:center;
+    -fx-min-height:30px;
+}
+
+.button {
+    -fx-min-width:80px;
+}

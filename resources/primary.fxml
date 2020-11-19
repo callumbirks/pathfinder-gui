@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Button?>
+<VBox stylesheets="/primary.css"
+      xmlns="http://javafx.com/javafx/11.0.1"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.callumbirks.Controller">
+    <HBox styleClass="hbox">
+        <Button onAction="#setStart" text="Set Start"/>
+        <Button onAction="#setEnd" text="Set End"/>
+        <Button onAction="#drawWalls" text="Draw Walls"/>
+        <Button onAction="#runAlgorithm" text="Run"/>
+        <Button onAction="#clearGrid" text="Clear"/>
+    </HBox>
+    <Canvas fx:id="canvas" width="800" height="500"/>
+</VBox>
