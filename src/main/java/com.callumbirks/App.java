@@ -22,11 +22,4 @@ public class App extends Application {
         // Finally display the window
         stage.show();
     }
-
-    /* The main function, which simply calls the JavaFX 'launch' function,
-       passing in the program arguments. */
-    public static void main(String[] args) {
-        launch(args);
-    }
-
 }
