@@ -8,130 +8,159 @@ import java.util.PriorityQueue;
 /*
     This class contains the A* algorithm. This algorithm has been written
     in a modular way so that with the Node class, it is entirely separable
-    from the GUI portion of the application. Given the same grid, same start
-    node and same end node, the algorithm will always give the same result.
+    from the GUI portion of the application.
  */
-//TODO: Fix all comments
 public class AStar {
+    // A 2D array of Node objects which represents the grid
     private Node[][] grid;
+    // A Node object which represents the start node
     private Node start = null;
+    // A Node object which represents the end node
     private Node end = null;
+    // A List of Node objects which represents the path found by the algorithm
     private List<Node> path = null;
 
+    /*
+        The primary and only constructor for the class, it takes the width and height of the
+        desired grid as parameters. The constructor is simply used to initialise the grid.
+     */
     public AStar(int width, int height) {
+        // Create a new 2D Node array with 'width' columns and 'height' rows, and assign it to the grid variable
         grid = new Node[width][height];
         // Loop through each element of the grid
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                // Set each element on the grid to a new Node with the relevant co-ordinates
+                // Set each element on the grid to a new Node with the relevant co-ordinates as parameters
                 grid[x][y] = new Node(x, y);
             }
         }
-        for (int x = 0; x < getGridWidth(); x++) {
-            for (int y = 0; y < getGridHeight(); y++) {
-                // Set each element on the grid to a new Node with the relevant co-ordinates
+        // Loop through each element of the grid again
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                // Use the setNeighbours function to calculate and set the neighbours of each node in the grid
                 grid[x][y].setNeighbours(width, height, grid);
             }
         }
     }
 
-    public Node[][] getGrid() {
-        return grid;
-    }
-
+    /*
+        Setter for the start node, takes the desired x and y co-ordinates for the start node as parameters
+        and sets 'start' equal to the Node object at the given co-ordinates in the grid.
+     */
     public void setStart(int x, int y) {
         start = grid[x][y];
     }
 
+    // Getter for the start node
     public Node getStart() {
         return start;
     }
 
+    /*
+        Setter for the end node, takes the desired x and y co-ordinates for the end node as parameters
+        and sets 'end' equal to the Node object at the given co-ordinates in the grid.
+     */
     public void setEnd(int x, int y) {
         end = grid[x][y];
     }
 
+    // Getter for the end node
     public Node getEnd() {
         return end;
     }
 
+    // Getter for the path, if the path has not been found then this returns null
     public List<Node> getPath() {
         return path;
     }
 
+    /*
+        Setter for whether each node in the grid is a wall. Parameters are; the x and y co-ordinates
+        for the relevant node, and a boolean determining whether this node is to be set as a wall
+        (false means this node will be made to not be a wall, true means it will be made to be a wall)
+     */
     public void setWall(int x, int y, boolean wall) {
         grid[x][y].setWall(wall);
     }
 
+    // Getter for the wall boolean of a node at the given x and y co-ordinates of the grid
     public boolean isWall(int x, int y) {
         return grid[x][y].isWall();
     }
 
+    // Check whether the node at the given x and y co-ords is the start node
     public boolean isStart(int x, int y) {
         return grid[x][y].equals(start);
     }
 
+    // Check whether the node at the given x and y co-ords is the end node
     public boolean isEnd(int x, int y) {
         return grid[x][y].equals(end);
     }
 
+    // Check if the path has been set
+    public boolean isPathSet() {
+        return path != null;
+    }
+
+    // Check whether the path has been set, and then if the node at the given x and y co-ords is on the path
     public boolean isOnPath(int x, int y) {
-        return path != null && path.contains(grid[x][y]);
+        return isPathSet() && path.contains(grid[x][y]);
+    }
+
+    // Check whether the node at the given x and y co-ordinates is within the bounds of the grid
+    public boolean isInGrid(int x, int y) {
+        return x < getGridWidth() && y < getGridHeight() && x >= 0 && y >= 0;
     }
 
     /*
-            Loop through all of the nodes in the grid, resetting the values of neighbours, f(n),
-            g(n), h(n) and previous. The reason these values are reset are because if this grid
-            has already been put through the algorithm, the values could have been changed which
-            could cause the algorithm to not run correctly. This ensures the algorithm runs as
-            it should every time, regardless of if this grid has already been modified by a
-            previous run of the algorithm.
-         */
+        Loop through all of the nodes in the grid, resetting the values of f(n), g(n), h(n)
+        and previous. The reason these values are reset is to ensure that the algorithm runs
+        consistently every time.
+    */
     private void resetValues() {
+        // For each node in the grid
         for (int x = 0; x < getGridWidth(); x++) {
             for (int y = 0; y < getGridHeight(); y++) {
+                // Reset f(n) to infinity
                 grid[x][y].setF((int) Double.POSITIVE_INFINITY);
+                // Reset g(n) to infinity
                 grid[x][y].setG((int) Double.POSITIVE_INFINITY);
-                grid[x][y].setPrevious(null);
+                // Reset and calculate h(n)
                 grid[x][y].setH(AStar.calculateH(x,y,end));
+                // Reset 'previous'
+                grid[x][y].setPrevious(null);
             }
         }
-        path = null;
     }
 
+    // Calculate and return the width of the grid based on the number of columns
     private int getGridWidth() {
         return grid.length;
     }
 
+    // Calculate and return the height of the grid based on the number of rows in the first column
     private int getGridHeight() {
         return grid[0].length;
     }
 
 
     /*
-        This is the only public function of the class, the one that runs the
-        algorithm. It takes parameters of; a 2D Node array representing the grid,
-        the start node, and the end node. It returns a Node list representing the
-        optimal path.
+        This function runs the algorithm itself. It takes no parameters and returns nothing, as it
+        relies entirely upon the values of this instance of the AStar class, therefore one must
+        ensure that the start and end nodes are not null before calling this function. It is not
+        necessary to check that grid is not null, as grid cannot be null if this class has been
+        instantiated. If the optimal path is found by this algorithm, it will be stored in the
+        'path' variable, which can be obtained using the 'getPath' function.
      */
     public void run() {
-        /*
-            Loop through all of the nodes in the grid, resetting the values of neighbours, f(n),
-            g(n), h(n) and previous. The reason these values are reset are because if this grid
-            has already been put through the algorithm, the values could have been changed which
-            could cause the algorithm to not run correctly. This ensures the algorithm runs as
-            it should every time, regardless of if this grid has already been modified by a
-            previous run of the algorithm.
-         */
-//        for (int x = 0; x < width; x++) {
-//            for (int y = 0; y < height; y++) {
-//                grid[x][y].setF((int) Double.POSITIVE_INFINITY);
-//                grid[x][y].setG((int) Double.POSITIVE_INFINITY);
-//                grid[x][y].setPrevious(null);
-//                grid[x][y].setH(calculateH(x,y,end));
-//            }
-//        }
+        // If the start node or end node are null, throw an IllegalArgumentException with the relevant message
+        if(start == null)
+            throw new IllegalArgumentException("Start node has not been set.");
+        if(end == null)
+            throw new IllegalArgumentException("End node has not been set");
 
+        // Call the resetValues function to ensure that the algorithm will run consistently
         resetValues();
 
         /*
@@ -169,8 +198,9 @@ public class AStar {
             Node current = openSet.peek();
             // If this node is the end node
             if (current.equals(end)) {
-                // Run the reconstructPath function to reconstruct the path
+                // Run the reconstructPath function to reconstruct the path and assign the result to the 'path' variable
                 path = reconstructPath(current);
+                // Exit the function early as the optimal path has been located
                 return;
             }
             // Remove the current node from the openSet (It does not need to be tested again)
@@ -198,10 +228,10 @@ public class AStar {
             }
         }
         /*
-            If we have not called reconstructPath and returned that value, and the loop has finished,
-            this means that openSet is now empty. Therefore we have not yet reached the end node from
-            the start node and there are no more nodes left to be tested. This means there is no
-            available path between the start node and end node. Therefore the path variable will be null
+            If the loop finishes this means that openSet is now empty and we have not been able to reach
+            the end node from the start node and there are no more nodes left to be tested. This means
+            there is no available path between the start node and end node. Therefore the path variable
+            will be null
          */
         path = null;
     }

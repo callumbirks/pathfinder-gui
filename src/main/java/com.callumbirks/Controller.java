@@ -33,12 +33,7 @@ public class Controller implements Initializable {
     public static int WIDTH;
     // The variable used to store the height of the grid (number of rows)
     public static int HEIGHT;
-    // The variable used to store the start node
-//    private Node start;
-//    // The variable used to store the end node
-//    private Node end;
-//    // The variable used to store the completed path once the algorithm has been run
-//    private List<Node> path;
+    // The variable used to store an instance of the AStar class
     private AStar aStar;
     /*
         The variable used to store what the last button pressed by the user was.
@@ -65,7 +60,7 @@ public class Controller implements Initializable {
         gc = canvas.getGraphicsContext2D();
         // Request focus for the canvas (so that mouse input can be captured properly).
         canvas.requestFocus();
-        // Initialize the grid as a new 2D Node array with WIDTH number of columns and HEIGHT number of rows
+        // Create a new AStar object, which will contain a grid with WIDTH columns and HEIGHT rows
         aStar = new AStar(WIDTH, HEIGHT);
         // Call the render function
         render();
@@ -76,7 +71,7 @@ public class Controller implements Initializable {
         such as drawing the lines on the grid and filling in all wall squares as black.
         When drawing, the co-ordinates have to be multiplied by the PIXEL_SIZE because
         the co-ordinates are relative to the size of the grid in rows and columns, however
-        when drawing it must be referred to by exact pixel position.
+        when drawing it must be relative to the pixels on the screen.
      */
     private void render() {
         // Loop through each node on the grid
@@ -112,9 +107,7 @@ public class Controller implements Initializable {
         }
     }
 
-    private boolean isInGrid(int x, int y) {
-        return x < WIDTH && y < HEIGHT && x >= 0 && y >= 0;
-    }
+
 
     /*
         A function triggered by the "Set Start" button which sets the start node to
@@ -132,7 +125,7 @@ public class Controller implements Initializable {
                 // Get the y position of the mouse, divide it by PIXEL_SIZE, and assign it to a temporary variable y
                 int y = (int) mouseEvent.getY() / PIXEL_SIZE;
                 // If the node the user has clicked on is within the bounds of the grid, and it is not a wall
-                if (isInGrid(x, y) && !aStar.getGrid()[x][y].isWall())
+                if (aStar.isInGrid(x, y) && !aStar.isWall(x,y))
                     // Set the start node to the node the user clicked on
                     aStar.setStart(x,y);
                 // Call the render function
@@ -157,7 +150,7 @@ public class Controller implements Initializable {
                 // Get the y position of the mouse, divide it by PIXEL_SIZE, and assign it to a temporary variable y
                 int y = (int) mouseEvent.getY() / PIXEL_SIZE;
                 // If the node the user has clicked on is within the bounds of the grid, and it is not a wall
-                if (isInGrid(x, y) && !aStar.isWall(x,y))
+                if (aStar.isInGrid(x, y) && !aStar.isWall(x,y))
                     // Set the end node to the node the user clicked on
                     aStar.setEnd(x,y);
                 // Call the render function
@@ -182,7 +175,7 @@ public class Controller implements Initializable {
                 // Get the y position of the mouse, divide it by PIXEL_SIZE, and assign it to a temporary variable y
                 int y = (int) mouseEvent.getY() / PIXEL_SIZE;
                 // If the node the user has dragged the mouse over is within the bounds of the grid
-                if (isInGrid(x, y))
+                if (aStar.isInGrid(x, y))
                     // Set the node the user dragged over to being a wall
                     aStar.setWall(x,y,true);
                 // Call the render function
@@ -195,6 +188,7 @@ public class Controller implements Initializable {
     public void runAlgorithm() {
         // Set the currentBtn variable to "run" so we know this is the last button that was clicked on
         currentBtn = "run";
+        // Run the algorithm
         aStar.run();
         // Call the render function
         render();
@@ -204,6 +198,10 @@ public class Controller implements Initializable {
     public void clearGrid() {
         // Set the currentBtn variable to "clearGrid" so we know this is the last button that was clicked on
         currentBtn = "clearGrid";
+        /*
+            Create a new AStar object and assign this to 'aStar' in order to wipe the grid and any variables
+            such as the start node or the path
+         */
         aStar = new AStar(WIDTH,HEIGHT);
         // Call the render function
         render();
