@@ -12,7 +12,7 @@ import java.util.PriorityQueue;
  */
 public class AStar {
     // A 2D array of Node objects which represents the grid
-    private Node[][] grid;
+    private final Node[][] grid;
     // A Node object which represents the start node
     private Node start = null;
     // A Node object which represents the end node

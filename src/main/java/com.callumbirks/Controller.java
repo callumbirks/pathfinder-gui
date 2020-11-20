@@ -7,7 +7,6 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 import java.net.URL;
-import java.util.List;
 import java.util.ResourceBundle;
 
 /*
@@ -125,9 +124,14 @@ public class Controller implements Initializable {
                 // Get the y position of the mouse, divide it by PIXEL_SIZE, and assign it to a temporary variable y
                 int y = (int) mouseEvent.getY() / PIXEL_SIZE;
                 // If the node the user has clicked on is within the bounds of the grid, and it is not a wall
-                if (aStar.isInGrid(x, y) && !aStar.isWall(x,y))
+                if (aStar.isInGrid(x, y) && !aStar.isWall(x,y)) {
                     // Set the start node to the node the user clicked on
-                    aStar.setStart(x,y);
+                    aStar.setStart(x, y);
+                    // If the path has already been generated
+                    if(aStar.isPathSet())
+                        // Regenerate the path based on the new start value
+                        aStar.run();
+                }
                 // Call the render function
                 render();
             }
@@ -150,9 +154,14 @@ public class Controller implements Initializable {
                 // Get the y position of the mouse, divide it by PIXEL_SIZE, and assign it to a temporary variable y
                 int y = (int) mouseEvent.getY() / PIXEL_SIZE;
                 // If the node the user has clicked on is within the bounds of the grid, and it is not a wall
-                if (aStar.isInGrid(x, y) && !aStar.isWall(x,y))
+                if (aStar.isInGrid(x, y) && !aStar.isWall(x,y)) {
                     // Set the end node to the node the user clicked on
-                    aStar.setEnd(x,y);
+                    aStar.setEnd(x, y);
+                    // If the path has already been generated
+                    if(aStar.isPathSet())
+                        // Regenerate the path based on the new end value
+                        aStar.run();
+                }
                 // Call the render function
                 render();
             }
@@ -175,9 +184,14 @@ public class Controller implements Initializable {
                 // Get the y position of the mouse, divide it by PIXEL_SIZE, and assign it to a temporary variable y
                 int y = (int) mouseEvent.getY() / PIXEL_SIZE;
                 // If the node the user has dragged the mouse over is within the bounds of the grid
-                if (aStar.isInGrid(x, y))
+                if (aStar.isInGrid(x, y)) {
                     // Set the node the user dragged over to being a wall
-                    aStar.setWall(x,y,true);
+                    aStar.setWall(x, y, true);
+                    // If the path has already been generated
+                    if(aStar.isPathSet())
+                        // Regenerate the path based on the new walls
+                        aStar.run();
+                }
                 // Call the render function
                 render();
             }
