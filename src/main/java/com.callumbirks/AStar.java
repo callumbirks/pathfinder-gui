@@ -11,20 +11,110 @@ import java.util.PriorityQueue;
     from the GUI portion of the application. Given the same grid, same start
     node and same end node, the algorithm will always give the same result.
  */
+//TODO: Fix all comments
 public class AStar {
+    private Node[][] grid;
+    private Node start = null;
+    private Node end = null;
+    private List<Node> path = null;
+
+    public AStar(int width, int height) {
+        grid = new Node[width][height];
+        // Loop through each element of the grid
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                // Set each element on the grid to a new Node with the relevant co-ordinates
+                grid[x][y] = new Node(x, y);
+            }
+        }
+        for (int x = 0; x < getGridWidth(); x++) {
+            for (int y = 0; y < getGridHeight(); y++) {
+                // Set each element on the grid to a new Node with the relevant co-ordinates
+                grid[x][y].setNeighbours(width, height, grid);
+            }
+        }
+    }
+
+    public Node[][] getGrid() {
+        return grid;
+    }
+
+    public void setStart(int x, int y) {
+        start = grid[x][y];
+    }
+
+    public Node getStart() {
+        return start;
+    }
+
+    public void setEnd(int x, int y) {
+        end = grid[x][y];
+    }
+
+    public Node getEnd() {
+        return end;
+    }
+
+    public List<Node> getPath() {
+        return path;
+    }
+
+    public void setWall(int x, int y, boolean wall) {
+        grid[x][y].setWall(wall);
+    }
+
+    public boolean isWall(int x, int y) {
+        return grid[x][y].isWall();
+    }
+
+    public boolean isStart(int x, int y) {
+        return grid[x][y].equals(start);
+    }
+
+    public boolean isEnd(int x, int y) {
+        return grid[x][y].equals(end);
+    }
+
+    public boolean isOnPath(int x, int y) {
+        return path != null && path.contains(grid[x][y]);
+    }
+
+    /*
+            Loop through all of the nodes in the grid, resetting the values of neighbours, f(n),
+            g(n), h(n) and previous. The reason these values are reset are because if this grid
+            has already been put through the algorithm, the values could have been changed which
+            could cause the algorithm to not run correctly. This ensures the algorithm runs as
+            it should every time, regardless of if this grid has already been modified by a
+            previous run of the algorithm.
+         */
+    private void resetValues() {
+        for (int x = 0; x < getGridWidth(); x++) {
+            for (int y = 0; y < getGridHeight(); y++) {
+                grid[x][y].setF((int) Double.POSITIVE_INFINITY);
+                grid[x][y].setG((int) Double.POSITIVE_INFINITY);
+                grid[x][y].setPrevious(null);
+                grid[x][y].setH(AStar.calculateH(x,y,end));
+            }
+        }
+        path = null;
+    }
+
+    private int getGridWidth() {
+        return grid.length;
+    }
+
+    private int getGridHeight() {
+        return grid[0].length;
+    }
+
+
     /*
         This is the only public function of the class, the one that runs the
         algorithm. It takes parameters of; a 2D Node array representing the grid,
         the start node, and the end node. It returns a Node list representing the
         optimal path.
      */
-    public static List<Node> run(Node[][] grid, Node start, Node end) {
-        /* Calculate the width of the grid based on the number of rows and
-        assign it to a variable */
-        final int width = grid.length;
-        /* Calculate the height of the grid based on the number of columns in the
-        first row (as all rows have the same number of columns) and assign it to a variable */
-        final int height = grid[0].length;
+    public void run() {
         /*
             Loop through all of the nodes in the grid, resetting the values of neighbours, f(n),
             g(n), h(n) and previous. The reason these values are reset are because if this grid
@@ -33,15 +123,16 @@ public class AStar {
             it should every time, regardless of if this grid has already been modified by a
             previous run of the algorithm.
          */
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                grid[x][y].setNeighbours(width, height, grid);
-                grid[x][y].setF((int) Double.POSITIVE_INFINITY);
-                grid[x][y].setG((int) Double.POSITIVE_INFINITY);
-                grid[x][y].setPrevious(null);
-                grid[x][y].setH(calculateH(x,y,end));
-            }
-        }
+//        for (int x = 0; x < width; x++) {
+//            for (int y = 0; y < height; y++) {
+//                grid[x][y].setF((int) Double.POSITIVE_INFINITY);
+//                grid[x][y].setG((int) Double.POSITIVE_INFINITY);
+//                grid[x][y].setPrevious(null);
+//                grid[x][y].setH(calculateH(x,y,end));
+//            }
+//        }
+
+        resetValues();
 
         /*
             Set the g(n) value of the start node to 0, as g(n) represents the distance
@@ -79,7 +170,8 @@ public class AStar {
             // If this node is the end node
             if (current.equals(end)) {
                 // Run the reconstructPath function to reconstruct the path
-                return reconstructPath(current);
+                path = reconstructPath(current);
+                return;
             }
             // Remove the current node from the openSet (It does not need to be tested again)
             openSet.remove(current);
@@ -109,10 +201,9 @@ public class AStar {
             If we have not called reconstructPath and returned that value, and the loop has finished,
             this means that openSet is now empty. Therefore we have not yet reached the end node from
             the start node and there are no more nodes left to be tested. This means there is no
-            available path between the start node and end node. Therefore we return the path as null to
-            reflect this.
+            available path between the start node and end node. Therefore the path variable will be null
          */
-        return null;
+        path = null;
     }
 
     // Calculate the h(n) value for a node at a given co-ordinate and given the end node

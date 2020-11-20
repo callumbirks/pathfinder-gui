@@ -29,18 +29,17 @@ public class Controller implements Initializable {
      */
     public static final int PIXEL_SIZE = 10;
 
-    // The variable used to store the grid
-    private Node[][] grid;
     // The variable used to store the width of the grid (number of columns)
     public static int WIDTH;
     // The variable used to store the height of the grid (number of rows)
     public static int HEIGHT;
     // The variable used to store the start node
-    private Node start;
-    // The variable used to store the end node
-    private Node end;
-    // The variable used to store the completed path once the algorithm has been run
-    private List<Node> path;
+//    private Node start;
+//    // The variable used to store the end node
+//    private Node end;
+//    // The variable used to store the completed path once the algorithm has been run
+//    private List<Node> path;
+    private AStar aStar;
     /*
         The variable used to store what the last button pressed by the user was.
         I have used this because otherwise it causes issues with walls being drawn
@@ -67,14 +66,7 @@ public class Controller implements Initializable {
         // Request focus for the canvas (so that mouse input can be captured properly).
         canvas.requestFocus();
         // Initialize the grid as a new 2D Node array with WIDTH number of columns and HEIGHT number of rows
-        grid = new Node[WIDTH][HEIGHT];
-        // Loop through each element of the grid
-        for (int x = 0; x < WIDTH; x++) {
-            for (int y = 0; y < HEIGHT; y++) {
-                // Set each element on the grid to a new Node with the relevant co-ordinates
-                grid[x][y] = new Node(x, y);
-            }
-        }
+        aStar = new AStar(WIDTH, HEIGHT);
         // Call the render function
         render();
     }
@@ -93,13 +85,13 @@ public class Controller implements Initializable {
                 // Clear the current node on the grid
                 gc.clearRect(x * PIXEL_SIZE, y * PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE);
                 // If this node is a wall set the fill colour to black
-                if (grid[x][y].isWall()) gc.setFill(Color.BLACK);
+                if (aStar.isWall(x,y)) gc.setFill(Color.BLACK);
                 // Else if this node is the start node set the fill colour to green
-                else if (grid[x][y].equals(start)) gc.setFill(Color.GREEN);
+                else if (aStar.isStart(x,y)) gc.setFill(Color.GREEN);
                 // Else if this node is the end node set the fill colour to red
-                else if (grid[x][y].equals(end)) gc.setFill(Color.RED);
+                else if (aStar.isEnd(x,y)) gc.setFill(Color.RED);
                 // Else if this node is on the path set the fill colour to blue
-                else if (path != null && path.contains(grid[x][y])) gc.setFill(Color.BLUE);
+                else if (aStar.isOnPath(x,y)) gc.setFill(Color.BLUE);
                 // If this node fulfilled none of the above conditions, skip to the next node
                 else continue;
                 // Fill this node with the current fill colour
@@ -140,9 +132,9 @@ public class Controller implements Initializable {
                 // Get the y position of the mouse, divide it by PIXEL_SIZE, and assign it to a temporary variable y
                 int y = (int) mouseEvent.getY() / PIXEL_SIZE;
                 // If the node the user has clicked on is within the bounds of the grid, and it is not a wall
-                if (isInGrid(x, y) && !grid[x][y].isWall())
+                if (isInGrid(x, y) && !aStar.getGrid()[x][y].isWall())
                     // Set the start node to the node the user clicked on
-                    start = grid[x][y];
+                    aStar.setStart(x,y);
                 // Call the render function
                 render();
             }
@@ -165,9 +157,9 @@ public class Controller implements Initializable {
                 // Get the y position of the mouse, divide it by PIXEL_SIZE, and assign it to a temporary variable y
                 int y = (int) mouseEvent.getY() / PIXEL_SIZE;
                 // If the node the user has clicked on is within the bounds of the grid, and it is not a wall
-                if (isInGrid(x, y) && !grid[x][y].isWall())
+                if (isInGrid(x, y) && !aStar.isWall(x,y))
                     // Set the end node to the node the user clicked on
-                    end = grid[x][y];
+                    aStar.setEnd(x,y);
                 // Call the render function
                 render();
             }
@@ -192,7 +184,7 @@ public class Controller implements Initializable {
                 // If the node the user has dragged the mouse over is within the bounds of the grid
                 if (isInGrid(x, y))
                     // Set the node the user dragged over to being a wall
-                    grid[x][y].setWall(true);
+                    aStar.setWall(x,y,true);
                 // Call the render function
                 render();
             }
@@ -203,10 +195,7 @@ public class Controller implements Initializable {
     public void runAlgorithm() {
         // Set the currentBtn variable to "run" so we know this is the last button that was clicked on
         currentBtn = "run";
-        // If grid, start and end have all been set
-        if(grid != null && start != null && end != null)
-            // Run the algorithm, passing in grid, start and end, and assigning the result to the path variable
-            path = AStar.run(grid, start, end);
+        aStar.run();
         // Call the render function
         render();
     }
@@ -215,19 +204,7 @@ public class Controller implements Initializable {
     public void clearGrid() {
         // Set the currentBtn variable to "clearGrid" so we know this is the last button that was clicked on
         currentBtn = "clearGrid";
-        // Loop through each node on the grid
-        for (int x = 0; x < WIDTH; x++) {
-            for (int y = 0; y < HEIGHT; y++) {
-                // Make each node not a wall
-                grid[x][y].setWall(false);
-            }
-        }
-        // Set the start node to null
-        start = null;
-        // Set the end node to null
-        end = null;
-        // Set the path to null
-        path = null;
+        aStar = new AStar(WIDTH,HEIGHT);
         // Call the render function
         render();
     }
