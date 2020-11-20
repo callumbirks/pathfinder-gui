@@ -8,4 +8,4 @@ An executable JAR for this project can be found under [Releases](https://github.
 ## Screenshots
 ![Screenshot of main screen](screenshots/screens1.png)
 
-![Screen capture of application usage](screenshots/screens3.gif)
+![Screen capture of application usage](screenshots/screens2.gif)
